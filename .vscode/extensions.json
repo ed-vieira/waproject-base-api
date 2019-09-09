@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "EditorConfig.editorconfig",
+    "christian-kohler.npm-intellisense",
+    "christian-kohler.path-intellisense",
+    "ms-vscode.vscode-typescript-tslint-plugin",
+    "rbbit.typescript-hero"
+  ]
+}
