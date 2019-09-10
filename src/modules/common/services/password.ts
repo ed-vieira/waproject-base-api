@@ -18,11 +18,11 @@ export class PasswordService {
     });
   }
 
-  public async compare(hash: string, password: string): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
+  public async compare(hash: string, password: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
       bcrypt.compare(password, hash, (err: any, isMatch: boolean) => {
-        if (err || !isMatch) return reject(new Error(err || 'bcript-invalid'));
-        resolve();
+        if (err || !isMatch) return reject(false);
+        resolve(true);
       });
     });
   }

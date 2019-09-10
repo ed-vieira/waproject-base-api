@@ -2,13 +2,10 @@ import './global';
 
 import { HttpException, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as sentry from '@sentry/node';
-import helmet from 'fastify-helmet';
 import { ApplicationModule } from 'modules/';
 import { RavenInterceptor } from 'nest-raven';
-import qs from 'qs';
 import { BUILD_NUMBER, IS_PROD, NODE_ENV, SENTRY_DSN } from 'settings';
 
 sentry.init({
@@ -18,18 +15,11 @@ sentry.init({
 });
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create<NestFastifyApplication>(
-    ApplicationModule,
-    new FastifyAdapter({
-      querystringParser: str => qs.parse(str),
-      logger: { prettyPrint: { colorize: true, translateTime: true } }
-    })
-  );
+  const app = await NestFactory.create(ApplicationModule);
 
   app.useGlobalPipes(new ValidationPipe({ disableErrorMessages: IS_PROD, forbidUnknownValues: true }));
 
   app.enableCors();
-  app.register(helmet);
 
   app.useGlobalInterceptors(
     new RavenInterceptor({

@@ -15,5 +15,10 @@
   ],
   "subscribers": [
      "src/modules/database/subscribers/**/*.ts"
-  ]
+  ],
+  "cli": {
+   "entitiesDir": "src/modules/database/models",
+   "migrationsDir": "src/modules/database/migrations",
+   "subscribersDir": "src/modules/database/subscribers"
+ }
 }

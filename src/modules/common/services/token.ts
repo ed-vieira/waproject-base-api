@@ -1,9 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { IChurchUser } from 'interfaces/models/churchUser';
 import { IUser } from 'interfaces/models/user';
 import { ICurrentUser } from 'interfaces/tokens/currentUser';
 import { IRefreshToken } from 'interfaces/tokens/refreshToken';
+import { IResetPasswordToken } from 'interfaces/tokens/resetPassword';
 import * as jwt from 'jsonwebtoken';
+import cloneDeep from 'lodash/cloneDeep';
 import { AUTH } from 'settings';
 import uuid from 'uuid/v4';
 
@@ -15,30 +16,38 @@ export enum enTokenType {
 
 @Injectable()
 export class TokenService {
-  public async generateAccessToken(user: IUser, churchUser: IChurchUser, forApp: boolean = false): Promise<string> {
+  public async generateAccessToken(user: IUser, forApp: boolean = false): Promise<string> {
     const tokenData: ICurrentUser = {
       id: user.id,
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      roles: churchUser.roles ? churchUser.roles : [],
-      church: {
-        id: churchUser.church.id,
-        name: churchUser.church.name,
-        slug: churchUser.church.slug
-      }
+      roles: user.roles
     };
 
     return this.sign(tokenData, enTokenType.accessToken, forApp ? AUTH.appTimeout : AUTH.timeout);
   }
 
-  public async generateRefreshToken(userId: number, deviceId: string, application: string): Promise<string> {
-    const tokenData: IRefreshToken = { userId, deviceId, application, uuid: uuid() };
+  public async generateRefreshToken(userId: number, deviceId: string): Promise<string> {
+    const tokenData: IRefreshToken = { userId, deviceId, uuid: uuid() };
     return this.sign(tokenData, enTokenType.refreshToken);
   }
 
-  public async verify(token: string, type: enTokenType.refreshToken): Promise<IRefreshToken>;
-  public async verify(token: string, type: enTokenType.accessToken): Promise<ICurrentUser>;
+  public async renewAccessToken(userToken: ICurrentUser): Promise<string> {
+    userToken = cloneDeep(userToken);
+    return this.sign(userToken, enTokenType.accessToken, AUTH.timeout);
+  }
+
+  public async resetPassword(user: IUser): Promise<string> {
+    const tokenData: IResetPasswordToken = {
+      id: user.id,
+      firstName: user.firstName,
+      email: user.email
+    };
+
+    return this.sign(tokenData, enTokenType.resetPassword, AUTH.resetPasswordTimeout);
+  }
+
   public async verify<T>(token: string, type: enTokenType): Promise<T> {
     return new Promise<T>((resolve, reject) => {
       jwt.verify(token, AUTH.secret, (err: any, decoded: any) => {

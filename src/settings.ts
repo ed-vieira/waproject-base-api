@@ -21,6 +21,8 @@ export const DATABASE_PORT = Number(process.env.DATABASE_PORT) || 3002;
 
 export const BCRYPT_SALT_FACTOR = NODE_ENV === 'test' ? 4 : 11;
 
+export const ASSETS_FOLDER = `${__dirname}/assets`;
+
 export const AUTH = {
   timeout: 480, // 8 hours
   appTimeout: 1440, // 24 hours
@@ -29,4 +31,12 @@ export const AUTH = {
     'RSd7w8utAWSjmJ8QOGt2OayydAqoUmL3sBTY7PqCVqOqaNn3RH38lMlNdDv5zoTQZH8GrR80YNFpQ3jKnDRMPDuwqaODObyyX0LS',
     'base64'
   ).toString('utf8')
+};
+
+export const MAIL = {
+  from: process.env.MAILGUN_FROM,
+  credentials: {
+    apiKey: process.env.MAILGUN_APIKEY,
+    domain: process.env.MAILGUN_DOMAIN
+  }
 };
