@@ -73,4 +73,55 @@ describe('Admin/TokenService', () => {
         expect(err.message.message).toEqual('token-type-not-match');
       });
   });
+
+  it('should verify method reject when token is expired', () => {
+    return service
+      .generateAccessToken(user, false, -30)
+      .then(token => {
+        expect(token).toBeString();
+        return service.verify(token, enTokenType.accessToken);
+      })
+      .then(() => fail())
+      .catch(err => {
+        expect(err).toBeInstanceOf(BadRequestException);
+        expect(err.message.message).toEqual('token-expired');
+      });
+  });
+
+  it('should generate refresh token', () => {
+    return service.generateRefreshToken(1, '1').then(token => {
+      expect(token).toBeString();
+      return expect(service.verify(token, enTokenType.refreshToken)).toResolve();
+    });
+  });
+
+  it('should renew access token', () => {
+    return service
+      .renewAccessToken({
+        id: 1,
+        firstName: 'Daniel',
+        lastName: 'Prado',
+        email: 'danielprado.ad@gmail.com',
+        roles: [enRoles.sysAdmin]
+      })
+      .then(token => {
+        expect(token).toBeString();
+        return expect(service.verify(token, enTokenType.accessToken)).toResolve();
+      });
+  });
+
+  it('should renew access token', () => {
+    return service
+      .resetPassword({
+        id: 1,
+        firstName: 'Daniel',
+        lastName: 'Prado',
+        email: 'danielprado.ad@gmail.com',
+        roles: [enRoles.sysAdmin]
+      })
+      .then(token => {
+        expect(token).toBeString();
+        return expect(service.verify(token, enTokenType.resetPassword)).toResolve();
+      });
+  });
 });

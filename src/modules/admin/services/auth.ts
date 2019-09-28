@@ -10,7 +10,7 @@ import { UrlService } from 'modules/common/services/url';
 import { User } from 'modules/database/models/user';
 import { IS_DEV } from 'settings';
 
-import { UserRepository } from '../respoitory/user';
+import { UserRepository } from '../respoitories/user';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +23,7 @@ export class AuthService {
   ) {}
 
   public async login(email: string, password: string): Promise<string> {
-    const user = await this.userRepository.findOne({ where: { email } });
+    const user = await this.userRepository.findByEmail(email);
     if (!user) throw new NotFoundException();
 
     const isValid = await this.passwordService.compare(user.password, password);
@@ -44,17 +44,17 @@ export class AuthService {
   }
 
   public async changePassword(userToken: ICurrentUser, oldPassword: string, newPassword: string): Promise<User> {
-    const user = await this.userRepository.findOne(userToken.id);
+    const user = await this.userRepository.findById(userToken.id);
 
     const isValid = await this.passwordService.compare(user.password, oldPassword);
     if (!isValid) throw new BadRequestException();
 
     user.password = await this.passwordService.hash(newPassword);
-    return this.userRepository.save(user);
+    return this.userRepository.update(user);
   }
 
   public async sendResetPassword(email: string): Promise<void> {
-    const user = await this.userRepository.findOne({ where: { email } });
+    const user = await this.userRepository.findByEmail(email);
     if (!user) throw new NotFoundException();
 
     const token = await this.tokenService.resetPassword(user);
@@ -70,16 +70,16 @@ export class AuthService {
 
   public async resetPassword(token: string, newPassword: string): Promise<User> {
     const info = await this.tokenService.verify<IResetPasswordToken>(token, enTokenType.resetPassword);
-    const user = await this.userRepository.findOne(info.id);
+    const user = await this.userRepository.findById(info.id);
 
     if (!user) throw new NotFoundException();
     user.password = await this.passwordService.hash(newPassword);
 
-    return this.userRepository.save(user);
+    return this.userRepository.update(user);
   }
 
   private async userSocialByEmail(socialUser: ISocialUserInfo): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { email: socialUser.email } });
+    const user = await this.userRepository.findByEmail(socialUser.email);
 
     if (user) {
       await this.associateUserSocial(user, {

@@ -1,5 +1,5 @@
 import { HttpService, Injectable } from '@nestjs/common';
-import { UserDevice } from 'models/userDevice';
+import { UserDevice } from 'modules/database/models/userDevice';
 import { FIREBASE_KEY } from 'settings';
 
 @Injectable()

@@ -16,7 +16,7 @@ export enum enTokenType {
 
 @Injectable()
 export class TokenService {
-  public async generateAccessToken(user: IUser, forApp: boolean = false): Promise<string> {
+  public async generateAccessToken(user: IUser, forApp: boolean = false, timeout?: number): Promise<string> {
     const tokenData: ICurrentUser = {
       id: user.id,
       email: user.email,
@@ -25,7 +25,7 @@ export class TokenService {
       roles: user.roles
     };
 
-    return this.sign(tokenData, enTokenType.accessToken, forApp ? AUTH.appTimeout : AUTH.timeout);
+    return this.sign(tokenData, enTokenType.accessToken, timeout || (forApp ? AUTH.appTimeout : AUTH.timeout));
   }
 
   public async generateRefreshToken(userId: number, deviceId: string): Promise<string> {
@@ -48,6 +48,9 @@ export class TokenService {
     return this.sign(tokenData, enTokenType.resetPassword, AUTH.resetPasswordTimeout);
   }
 
+  public async verify<T>(token: string, type: enTokenType.resetPassword): Promise<IResetPasswordToken>;
+  public async verify<T>(token: string, type: enTokenType.refreshToken): Promise<IRefreshToken>;
+  public async verify<T>(token: string, type: enTokenType.accessToken): Promise<ICurrentUser>;
   public async verify<T>(token: string, type: enTokenType): Promise<T> {
     return new Promise<T>((resolve, reject) => {
       jwt.verify(token, AUTH.secret, (err: any, decoded: any) => {

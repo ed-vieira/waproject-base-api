@@ -1,26 +1,38 @@
 import { IUserDevice } from 'interfaces/models/userDevice';
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Model } from 'objection';
 
 import { User } from './user';
 
-@Entity({ name: 'UserDevice' })
-export class UserDevice implements IUserDevice {
-  @PrimaryColumn({ nullable: false, length: 150 })
+export class UserDevice extends Model implements IUserDevice {
   public deviceId: string;
-
-  @PrimaryColumn({ nullable: false, type: 'integer' })
   public userId: number;
-
-  @Column({ nullable: false, length: 150 })
   public name: string;
-
-  @Column({ nullable: false, type: 'uuid' })
   public currentToken: string;
-
-  @Column({ nullable: true, length: 250 })
   public notificationToken?: string;
 
-  @ManyToOne(() => User, user => user.devices)
-  @JoinColumn({ name: 'userId' })
   public user: User;
+
+  public static get tableName(): string {
+    return 'UserDevice';
+  }
+
+  public static get relationMappings(): any {
+    return {
+      user: {
+        relation: Model.HasOneRelation,
+        modelClass: User,
+        filter: (query: any) => query.select('id', 'firstName', 'lastName', 'email'),
+        join: {
+          from: 'User.id',
+          to: 'UserDevice.userId'
+        }
+      }
+    };
+  }
+
+  public $formatJson(data: IUserDevice): IUserDevice {
+    delete data.notificationToken;
+    delete data.currentToken;
+    return data;
+  }
 }

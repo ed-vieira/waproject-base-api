@@ -1,12 +1,12 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { ICurrentUser } from 'interfaces/tokens/currentUser';
+import { CurrentUser, TokenGuard } from 'modules/common/guards/token';
 
-import { CurrentUser, TokenGuard } from '../guards/token';
 import { AuthService } from '../services/auth';
+import { ChangePasswordValidator } from '../validators/auth/changePassword';
 import { LoginValidator } from '../validators/auth/login';
-import { LogoutValidator } from '../validators/auth/logout';
-import { OpenedValidator } from '../validators/auth/opened';
-import { RefreshValidator } from '../validators/auth/refresh';
+import { ResetPasswordValidator } from '../validators/auth/resetPassword';
+import { SendResetValidator } from '../validators/auth/sendReset';
 
 @Controller('/auth')
 export class AuthController {
@@ -14,28 +14,22 @@ export class AuthController {
 
   @Post('login')
   public async login(@Body() model: LoginValidator) {
-    return this.appService.login(model);
+    return this.appService.login(model.email, model.password);
   }
 
-  @Post('logout')
+  @Post('send-reset')
+  public async sendReset(@Body() model: SendResetValidator) {
+    return this.appService.sendResetPassword(model.email);
+  }
+
+  @Post('reset-password')
+  public async resetPassword(@Body() model: ResetPasswordValidator) {
+    return this.appService.resetPassword(model.token, model.password);
+  }
+
+  @Post('change-password')
   @UseGuards(TokenGuard)
-  public async logout(@Body() model: LogoutValidator, @CurrentUser() currentUser: ICurrentUser) {
-    await this.appService.logout(currentUser, model.deviceId);
-    return { success: true };
-  }
-
-  @Post('refresh')
-  public async refresh(@Body() model: RefreshValidator) {
-    return {
-      accessToken: await this.appService.refreshToken(model.refreshToken, model.deviceId),
-      refreshToken: model.refreshToken
-    };
-  }
-
-  @Post('opened')
-  @UseGuards(TokenGuard)
-  public async opened(@Body() model: OpenedValidator, @CurrentUser() currentUser: ICurrentUser) {
-    await this.appService.updateSession(currentUser.client.id, model.deviceId, model.notificationToken);
-    return { success: true };
+  public async changePassword(@Body() model: ChangePasswordValidator, @CurrentUser() currentUser: ICurrentUser) {
+    return this.appService.changePassword(currentUser, model.currentPassword, model.newPassword);
   }
 }

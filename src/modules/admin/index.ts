@@ -3,13 +3,12 @@ import { CommonModule } from 'modules/common/module';
 import { DatabaseModule } from 'modules/database/module';
 
 import { AuthController } from './controllers/auth';
-import { UserController } from './controllers/user';
-import { UserRepository } from './repositories/user';
+import { UserRepository } from './respoitories/user';
 import { AuthService } from './services/auth';
 
 @Module({
   imports: [HttpModule, CommonModule, DatabaseModule],
-  controllers: [AuthController, UserController],
+  controllers: [AuthController],
   providers: [AuthService, UserRepository]
 })
 export class AppModule {}

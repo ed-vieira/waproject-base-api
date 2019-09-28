@@ -1,19 +1,30 @@
 import { IUserSocial } from 'interfaces/models/userSocial';
-import { Entity, JoinColumn, OneToMany, PrimaryColumn } from 'typeorm';
+import { Model } from 'objection';
 
 import { User } from './user';
 
-@Entity({ name: 'UserSocial' })
-export class UserSocial implements IUserSocial {
-  @PrimaryColumn({ nullable: false, type: 'integer' })
+export class UserSocial extends Model implements IUserSocial {
   public userId: number;
-  @PrimaryColumn({ nullable: false, length: 50 })
+  public ref: string;
   public provider: string;
 
-  @PrimaryColumn({ nullable: false, length: 150 })
-  public ref: string;
-
-  @OneToMany(() => User, user => user.socials)
-  @JoinColumn({ name: 'userId' })
   public user: User;
+
+  public static get tableName(): string {
+    return 'UserSocial';
+  }
+
+  public static get relationMappings(): any {
+    return {
+      user: {
+        relation: Model.HasOneRelation,
+        modelClass: User,
+        filter: (query: any) => query.select('id', 'firstName', 'lastName', 'email'),
+        join: {
+          from: 'UserSocial.userId',
+          to: 'User.id'
+        }
+      }
+    };
+  }
 }
