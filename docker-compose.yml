@@ -6,12 +6,11 @@ services:
     build: docker/dev
     ports:
       - "3001:3000"
-      - "5859:5859"
+      - "3229:9229"
     env_file:
       - .env
     volumes:
-      - .:/src
-      - ./docker/dev/start.sh:/usr/local/bin/start.sh
+      - .:/server
     links:
       - database
 

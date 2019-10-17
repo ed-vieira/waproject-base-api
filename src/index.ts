@@ -1,11 +1,11 @@
 import './global';
 
-import { HttpException, ValidationPipe } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as sentry from '@sentry/node';
+import { ExceptionFilter } from 'filters/exception';
 import { ApplicationModule } from 'modules/';
-import { RavenInterceptor } from 'nest-raven';
 import { BUILD_NUMBER, IS_PROD, NODE_ENV, SENTRY_DSN } from 'settings';
 
 sentry.init({
@@ -16,27 +16,24 @@ sentry.init({
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(ApplicationModule);
-
-  app.useGlobalPipes(new ValidationPipe({ disableErrorMessages: IS_PROD, forbidUnknownValues: true }));
+  const { httpAdapter } = app.get(HttpAdapterHost);
 
   app.enableCors();
 
-  app.useGlobalInterceptors(
-    new RavenInterceptor({
-      filters: [{ type: HttpException, filter: (exception: HttpException) => 500 > exception.getStatus() }]
-    })
-  );
+  app.useGlobalPipes(new ValidationPipe({ disableErrorMessages: IS_PROD, forbidUnknownValues: true }));
+  app.useGlobalFilters(new ExceptionFilter(httpAdapter));
 
   const swaggerOptions = new DocumentBuilder()
-    .setTitle('Eduzz Mobile API')
-    .setDescription('Eduzz Orbita API')
+    .setTitle('Wa Project API')
+    .setDescription('Wa Project API')
     .setVersion('1.0')
+    .addBearerAuth('Authorization', 'header')
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerOptions);
   SwaggerModule.setup('/swagger', app, document);
 
-  await app.listen(5000, '0.0.0.0', () => {
+  await app.listen(3000, '0.0.0.0', () => {
     console.log('******************************');
     console.log(`SERVER STARTED as ${NODE_ENV}`);
     console.log('******************************');

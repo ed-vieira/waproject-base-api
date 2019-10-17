@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { HttpModule, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 
 import { TokenGuard } from './guards/token';
 import { BindUserMiddleware } from './middlewares/bindUser';
@@ -10,6 +10,7 @@ import { UploadService } from './services/upload';
 import { UrlService } from './services/url';
 
 @Module({
+  imports: [HttpModule],
   providers: [MailService, TokenService, NotificationService, PasswordService, UploadService, UrlService, TokenGuard],
   exports: [MailService, TokenService, NotificationService, PasswordService, UploadService, UrlService, TokenGuard]
 })

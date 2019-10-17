@@ -6,7 +6,7 @@ export async function seed(knex: Knex): Promise<void> {
     firstName: 'WaProject',
     lastName: 'Admin',
     email: 'admin@waproject.com.br',
-    password: '$2y$12$tb8iGhF4eUEuLY1h4zSe5OTr8C1.3L8ZRFV0yP5eQdu8iYaufInfe', //senha@123
+    password: '$2b$11$Ht0vFtWZHNh0nOlFr1iLUu2/.p//LlghbIxzckI1bmFjVNDn78tKm', //senha@123
     roles: enRoles.sysAdmin as any,
     createdDate: new Date(),
     updatedDate: new Date()

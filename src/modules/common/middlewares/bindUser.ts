@@ -1,4 +1,5 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Request, Response } from 'express';
 
 import { enTokenType, TokenService } from '../services/token';
 
@@ -6,16 +7,15 @@ import { enTokenType, TokenService } from '../services/token';
 export class BindUserMiddleware implements NestMiddleware {
   constructor(private tokenService: TokenService) {}
 
-  public async use(req: any, res: Response, next: Function) {
-    const request = req;
-    const accessToken = (request.headers.authorization || '').split(' ')[1];
+  public async use(req: Request, res: Response, next: Function) {
+    const accessToken = req.get('Authorization');
 
     if (!accessToken) {
       return next();
     }
 
     try {
-      req.user = await this.tokenService.verify(accessToken, enTokenType.accessToken);
+      (req as any).user = await this.tokenService.verify(accessToken.split(' ')[1], enTokenType.accessToken);
     } catch (err) {}
 
     next();

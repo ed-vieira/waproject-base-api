@@ -1,3 +1,4 @@
+import { ApiModelProperty } from '@nestjs/swagger';
 import { enRoles, IUser } from 'interfaces/models/user';
 import { Model } from 'objection';
 
@@ -5,17 +6,26 @@ import { UserDevice } from './userDevice';
 import { UserSocial } from './userSocial';
 
 export class User extends Model implements IUser {
+  @ApiModelProperty({ type: 'integer' })
   public id: number;
+  @ApiModelProperty({ type: 'string' })
   public firstName: string;
+  @ApiModelProperty({ type: 'string' })
   public lastName: string;
+  @ApiModelProperty({ type: 'string' })
   public email: string;
   public password: string;
+  @ApiModelProperty({ type: ['string'] })
   public roles: enRoles[];
 
+  @ApiModelProperty({ type: 'string', format: 'date-time' })
   public createdDate: Date;
+  @ApiModelProperty({ type: 'string', format: 'date-time' })
   public updatedDate: Date;
 
+  // @ApiModelProperty({ nullable: true, type: [UserDevice] })
   public devices?: UserDevice[];
+  // @ApiModelProperty({ nullable: true, type: [UserSocial] })
   public socials?: UserSocial[];
 
   public get fullName(): string {

@@ -1,6 +1,7 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
+import { ApiUseTags } from '@nestjs/swagger';
 import { ICurrentUser } from 'interfaces/tokens/currentUser';
-import { CurrentUser, TokenGuard } from 'modules/common/guards/token';
+import { AuthRequired, CurrentUser } from 'modules/common/guards/token';
 
 import { AuthService } from '../services/auth';
 import { ChangePasswordValidator } from '../validators/auth/changePassword';
@@ -8,28 +9,29 @@ import { LoginValidator } from '../validators/auth/login';
 import { ResetPasswordValidator } from '../validators/auth/resetPassword';
 import { SendResetValidator } from '../validators/auth/sendReset';
 
+@ApiUseTags('Admin: Auth')
 @Controller('/auth')
 export class AuthController {
-  constructor(private readonly appService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('login')
   public async login(@Body() model: LoginValidator) {
-    return this.appService.login(model.email, model.password);
+    return this.authService.login(model.email, model.password);
   }
 
   @Post('send-reset')
   public async sendReset(@Body() model: SendResetValidator) {
-    return this.appService.sendResetPassword(model.email);
+    return this.authService.sendResetPassword(model.email);
   }
 
   @Post('reset-password')
   public async resetPassword(@Body() model: ResetPasswordValidator) {
-    return this.appService.resetPassword(model.token, model.password);
+    return this.authService.resetPassword(model.token, model.password);
   }
 
   @Post('change-password')
-  @UseGuards(TokenGuard)
+  @AuthRequired()
   public async changePassword(@Body() model: ChangePasswordValidator, @CurrentUser() currentUser: ICurrentUser) {
-    return this.appService.changePassword(currentUser, model.currentPassword, model.newPassword);
+    return this.authService.changePassword(currentUser, model.currentPassword, model.newPassword);
   }
 }
