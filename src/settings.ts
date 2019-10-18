@@ -1,8 +1,11 @@
+import dotenv from 'dotenv';
+
+const ENV_FILE = dotenv.config().parsed;
+
 export const NODE_ENV = (process.env.NODE_ENV || 'production').trim();
 export const SENTRY_DSN = (process.env.SENTRY_DSN || '').trim();
 
-export const BUILD_NUMBER = (process.env.BUILD_NUMBER || 'dev').trim();
-export const BUILD_DATE = (process.env.BUILD_DATE || '').trim();
+export const VERSION = (process.env.VERSION || ENV_FILE.VERSION || 'dev').trim();
 
 export const API_DNS = (process.env.API_DNS || '').trim();
 export const APP_DNS = (process.env.APP_DNS || '').trim();

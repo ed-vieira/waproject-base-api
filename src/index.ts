@@ -6,12 +6,12 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as sentry from '@sentry/node';
 import { ExceptionFilter } from 'filters/exception';
 import { ApplicationModule } from 'modules/';
-import { BUILD_NUMBER, IS_PROD, NODE_ENV, SENTRY_DSN } from 'settings';
+import { IS_PROD, NODE_ENV, SENTRY_DSN, VERSION } from 'settings';
 
 sentry.init({
   dsn: SENTRY_DSN,
   environment: NODE_ENV,
-  release: BUILD_NUMBER
+  release: VERSION
 });
 
 async function bootstrap(): Promise<void> {
@@ -26,7 +26,7 @@ async function bootstrap(): Promise<void> {
   const swaggerOptions = new DocumentBuilder()
     .setTitle('Wa Project API')
     .setDescription('Wa Project API')
-    .setVersion('1.0')
+    .setVersion(`1.${VERSION}`)
     .addBearerAuth('Authorization', 'header')
     .build();
 
