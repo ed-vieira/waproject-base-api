@@ -31,12 +31,6 @@
     "docker:push:staging": "docker push waproject/waproject-base-api:staging",
     "deploy-server": "scripts/deploy-server.sh"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "concurrently -r \"yarn lint\" \"yarn tsc --noEmit\"",
-      "post-merge": "yarn"
-    }
-  },
   "dependencies": {
     "@nestjs/common": "6.10.11",
     "@nestjs/core": "6.10.11",
